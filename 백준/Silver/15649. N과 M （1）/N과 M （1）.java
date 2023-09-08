@@ -1,44 +1,47 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
 
 public class Main {
-	static int[] numbers;
-	static boolean[] visited;
-	static StringBuilder sb = new StringBuilder();
+	public static int[] sel;
+	public static int N, M;
+	public static StringBuilder str = new StringBuilder();
 	
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		
-		int N = sc.nextInt(); // 1~N 숫자를 사용
-		int M = sc.nextInt(); // 길이
-		
-		numbers = new int[M];
-		visited = new boolean[N];
-		
-		combination(N, M, 0);
-		System.out.println(sb);
-		
-		sc.close();
+	
+	public static void main(String[] args) throws IOException {
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		//input
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		sel = new int[M];
+		comb(0,0);
+		bw.write(str.toString());
+		bw.flush();
+		bw.close();
+		br.close();
 	}
 	
-	public static void combination(int N, int M, int depth) {
-		if (depth == M) {
-			for (int i = 0; i < M; i++) {
-				sb.append(numbers[i]);
-				if (i != M-1) sb.append(" ");
+	public static void comb(int idx, int visited) {
+		if(idx == M) {
+			for(int i: sel) {
+				str.append(i + " ");
 			}
-			sb.append('\n');
-			
-			return;
-		} else {
-			for (int i = 0; i < N; i++) {
-				if (visited[i] == false) {
-					visited[i] = true;
-					numbers[depth] = i+1;
-					combination(N, M, depth+1);
-					visited[i] = false;
-				}
-			}
+			str.append("\n");
 			return;
 		}
+		
+		for(int i = 1; i <= N; i++) {
+			if((visited & (1<<i)) == 0) {
+				sel[idx] = i;
+				comb(idx+1, visited | (1<<i));
+			}
+		}
 	}
+	
 }
