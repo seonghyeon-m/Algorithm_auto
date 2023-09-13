@@ -1,33 +1,39 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class Main {
+	public static int A;
+	public static int C;
 	
-	static long A, B, C;
-	
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
 		
-		A = sc.nextLong();
-		B = sc.nextLong();
-		C = sc.nextLong();
+		A = Integer.parseInt(st.nextToken());
+		int B = Integer.parseInt(st.nextToken());
+		C = Integer.parseInt(st.nextToken());
 		
-		A %=C;
 		
-		System.out.println(cal(A, B, C));
 		
-		sc.close();
+		System.out.println(multi(B));
 	}
 	
-	public static long cal(long A, long B, long C) {
-		if (C == 1) return 0;
+	public static long multi(int n) {
+		if(n == 1) {
+			return A%C;
+		}
 		
-		if (B == 0) return 1;
-		if (B == 1) return A % C;
-		
-		long save = cal(A, B/2, C) % C;
-		if (B % 2 == 0) return (save * save) % C;
-		else return (((save * save)%C) * (A%C)) % C;
-
+		if(n%2 == 1) {
+			long temp = multi((n-1)/2)%C;
+			return (temp * temp)%C * (A%C) % C;
+		} else {
+			long temp = multi(n/2)%C;
+			return (temp * temp) % C;
+		}
 	}
+	
 	
 }
