@@ -4,11 +4,22 @@ import java.util.Scanner;
 
 public class Main {
 
+	static class Room {
+		int l, r, c, depth;
+
+		public Room(int l, int r, int c, int depth) {
+			this.l = l;
+			this.r = r;
+			this.c = c;
+			this.depth = depth;
+		}
+	}
+
 	static String[][][] building;
 	static boolean[][][] visited;
 	static int[] startPoint, endPoint;
-	static Queue<Integer> queueL, queueR, queueC, queueDepth;
-	static int L, R, C, max;
+	static Queue<Room> queue;
+	static int L, R, C;
 
 	// 상하좌우전후
 	static int[] dl = { -1, 1, 0, 0, 0, 0 };
@@ -23,12 +34,11 @@ public class Main {
 		L = sc.nextInt();
 		R = sc.nextInt();
 		C = sc.nextInt();
-		
+
+		// 입력이 종료될 때까지 (0 0 0이 입력되면 종료)
 		while (L != 0 && R != 0 && C != 0) {
-			
-			/*
-			 * #는 지나갈 수 없고 .은 지나갈 수 있고 S는 시작점 E는 출구
-			 */
+
+			// #는 지나갈 수 없고 .은 지나갈 수 있고 S는 시작점 E는 출구
 			building = new String[L][R][];
 			for (int l = 0; l < L; l++)
 				for (int r = 0; r < R; r++)
@@ -54,64 +64,54 @@ public class Main {
 			}
 
 			visited = new boolean[L][R][C];
-			queueL = new LinkedList<>();
-			queueR = new LinkedList<>();
-			queueC = new LinkedList<>();
-			queueDepth = new LinkedList<>();
+			queue = new LinkedList<>();
 
 			BFS(startPoint);
-			
+
 			L = sc.nextInt();
 			R = sc.nextInt();
 			C = sc.nextInt();
-			
+
 		} // while
 
 		sc.close();
 	}
 
 	public static void BFS(int[] start) {
-		
-		visited[start[0]][start[1]][start[2]] = true;
-		queueL.add(start[0]);
-		queueR.add(start[1]);
-		queueC.add(start[2]);
-		queueDepth.add(0);
 
-		while (!queueC.isEmpty()) {
-			
-			int[] now = { queueL.poll(), queueR.poll(), queueC.poll() };
-			int depth = queueDepth.poll();
-			
+		visited[start[0]][start[1]][start[2]] = true;
+		queue.add(new Room(start[0], start[1], start[2], 0));
+
+		while (!queue.isEmpty()) {
+
+			Room nowRoom = queue.poll();
+
 			for (int i = 0; i < 6; i++) {
 
-				int nl = now[0]+dl[i];
-				int nr = now[1]+dr[i];
-				int nc = now[2]+dc[i];
-				
+				int nl = nowRoom.l + dl[i];
+				int nr = nowRoom.r + dr[i];
+				int nc = nowRoom.c + dc[i];
+
 				// 건물 밖으로 나가지 않으며
 				if (nl >= 0 && nl < L && nr >= 0 && nr < R && nc >= 0 && nc < C) {
 					// 이미 방문하지도 않았으며
-					if (!visited[now[0]+dl[i]][now[1]+dr[i]][now[2]+dc[i]]) {
+					if (!visited[nl][nr][nc]) {
 						// 길이 있으면
 						if (building[nl][nr][nc].equals(".")) {
 							visited[nl][nr][nc] = true;
-							queueL.add(nl);
-							queueR.add(nr);
-							queueC.add(nc);
-							queueDepth.add(depth+1);
-						// 혹은 도착했다면
+							queue.add(new Room(nl, nr, nc, nowRoom.depth + 1));
+							// 혹은 도착했다면
 						} else if (building[nl][nr][nc].equals("E")) {
-							System.out.println("Escaped in "+(depth+1)+" minute(s).");
+							System.out.println("Escaped in " + (nowRoom.depth + 1) + " minute(s).");
 							return;
 						}
 					}
 				}
-				
-			} //for
 
-		} //while
-		
+			} // for
+
+		} // while
+
 		// 만약 경로가 없으면
 		System.out.println("Trapped!");
 		return;
