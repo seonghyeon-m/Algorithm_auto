@@ -1,126 +1,90 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.util.Scanner;
 
 public class Main {
-	
-	public static void main(String[] args) throws NumberFormatException, IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		
-		int N = Integer.parseInt(st.nextToken());
-		int M = Integer.parseInt(st.nextToken());
-		
-		int[][] map = new int[N][M];
-		int max = 0;
-		
-		for(int i = 0; i < N; i++) {
-			st = new StringTokenizer(br.readLine());
-			for(int j = 0; j < M; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
-			}
-		}
-		
-		//직선(세로로)
-		for(int i = 0; i <= N-4; i++) {
-			for(int j = 0; j < M; j++) {
-				int temp = 0;
-				for(int d = 0; d < 4; d++) {
-					temp += map[i+d][j];
-				}
-				max = Math.max(max, temp);
-			}
-		}
-		
-		//직선(가로로)
-		for(int i = 0; i < N; i++) {
-			for(int j = 0; j <= M-4; j++) {
-				int temp = 0;
-				for(int d = 0; d < 4; d++) {
-					temp += map[i][j+d];
-				}
-				max = Math.max(max, temp);
-			}
-		}
-		
-		//사각형
-		for(int i = 0; i <= N-2; i++) {
-			for(int j = 0; j <= M-2; j++) {
-				int temp = map[i][j] + map[i+1][j] + map[i][j+1] + map[i+1][j+1];
-				max = Math.max(max, temp);
-			}
-		}
-		
-		
-		//가로3 세로2
-		for(int i = 0; i <= N-2; i++) {
-			for(int j = 0; j <= M-3; j++) {
-				// ㄴ 자 모형, T자 모형(위가 찬 모습)
-				int temp1 = 0;
-				for(int d = 0; d < 3; d++) {
-					temp1+=map[i][j+d];
-				}
-				int temp2 = temp1;
-				temp1 += Math.max(map[i+1][j], map[i+1][j+2]);
-				temp2 += map[i+1][j+1];
-				max = Math.max(max, temp1);
-				max = Math.max(max, temp2);
-				
-				//아래가 찬 모습
-				temp1 = 0;
-				for(int d = 0; d < 3; d++) {
-					temp1+=map[i+1][j+d];
-				}
-				temp2 = temp1;
-				temp1 += Math.max(map[i][j], map[i][j+2]);
-				temp2 += map[i][j+1];
-				max = Math.max(max, temp1);
-				max = Math.max(max, temp2);
-				
-				//나머지 모양
-				int temp3 = map[i][j+1] + map[i][j+2] + map[i+1][j] + map[i+1][j+1];
-				int temp4 = map[i+1][j+1] + map[i+1][j+2] + map[i][j] + map[i][j+1];
-				max = Math.max(max, temp3);
-				max = Math.max(max, temp4);
-			}
-		}
-		
-		//세로3 가로2
-		for(int i = 0; i <= N-3; i++) {
-			for(int j = 0; j <= M-2; j++) {
-				// ㄴ 자 모형, T자 모형(좌가 찬 모습)
-				int temp1 = 0;
-				for(int d = 0; d < 3; d++) {
-					temp1+=map[i+d][j];
-				}
-				int temp2 = temp1;
-				temp1 += Math.max(map[i][j+1], map[i+2][j+1]);
-				temp2 += map[i+1][j+1];
-				max = Math.max(max, temp1);
-				max = Math.max(max, temp2);
-				
-				//우가 찬 모습
-				temp1 = 0;
-				for(int d = 0; d < 3; d++) {
-					temp1+=map[i+d][j+1];
-				}
-				temp2 = temp1;
-				temp1 += Math.max(map[i][j], map[i+2][j]);
-				temp2 += map[i+1][j];
-				max = Math.max(max, temp1);
-				max = Math.max(max, temp2);
-				
-				//나머지 모양
-				int temp3 = map[i+1][j] + map[i+2][j] + map[i][j+1] + map[i+1][j+1];
-				int temp4 = map[i+1][j+1] + map[i+2][j+1] + map[i][j] + map[i+1][j];
-				max = Math.max(max, temp3);
-				max = Math.max(max, temp4);
-			}
-		}
-		
-		System.out.println(max);
-	}
-	
-	
+
+    static int[][] map;
+    static boolean[][] visited;
+    static int N, M, max, now;
+    static int[] dx = {-1, 1, 0, 0};
+    static int[] dy = {0, 0, -1, 1};
+    static int[][] dxSpecial = { {-1, 1, 0}, {-1, 1, 0}, {-1, 0, 0}, {1, 0, 0} };
+    static int[][] dySpecial = { {0, 0, -1}, {0, 0, 1}, {0, -1, 1}, {0, -1, 1} };
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        N = sc.nextInt(); // 세로 크기
+        M = sc.nextInt(); // 가로 크기
+
+        map = new int[N][M];
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                map[i][j] = sc.nextInt();
+            }
+        }
+
+        visited = new boolean[N][M];
+        max = 0;
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                now = 0;
+                dfs(i, j, 0);
+            }
+        }
+
+        // ㅗ 모양은 dfs 탐색 불가
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                specialCase(i, j);
+            }
+        }
+
+        System.out.println(max);
+        sc.close();
+    }
+
+    public static void dfs(int x, int y, int depth) {
+        if (depth == 4) {
+            if (now > max) {
+                max = now;
+            }
+            return;
+        }
+
+        visited[x][y] = true;
+        now +=map[x][y];
+        for (int i = 0; i < 4; i++) {
+            int nx = x+dx[i];
+            int ny = y+dy[i];
+            if (isOnMap(nx, ny) && !visited[nx][ny]) {
+                dfs(nx, ny, depth+1);
+            }
+        }
+        now -=map[x][y];
+        visited[x][y] = false;
+    }
+
+    public static void specialCase(int x, int y) {
+        for (int i = 0; i < 4; i++) {
+            now = map[x][y];
+            one: for (int j = 0; j < 3; j++) {
+                int nx = x + dxSpecial[i][j];
+                int ny = y + dySpecial[i][j];
+                if (isOnMap(nx, ny)) {
+                    now +=map[nx][ny];
+                } else {
+                    break one;
+                }
+            }
+            if (now > max) {
+                max = now;
+            }
+        }
+    }
+
+    public static boolean isOnMap(int x, int y) {
+        return x >= 0 && x < N && y >= 0 && y < M;
+    }
 }
